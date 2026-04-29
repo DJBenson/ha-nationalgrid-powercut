@@ -1,0 +1,43 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "National Grid Power Cut",
+        "description": "Enter the postcode to monitor for live National Grid power cut information.",
+        "data": {
+          "postcode": "Postcode"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the National Grid connected data API.",
+      "invalid_postcode": "Enter a valid UK postcode.",
+      "invalid_response": "The National Grid connected data API returned an unexpected response.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This postcode is already configured."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "power_cut_reported": {
+        "name": "Power cut reported"
+      }
+    },
+    "sensor": {
+      "incident_count": {
+        "name": "Incident count"
+      },
+      "status": {
+        "name": "Status"
+      },
+      "estimated_restoration_time": {
+        "name": "Estimated restoration time"
+      },
+      "planned_outage_start": {
+        "name": "Planned outage start"
+      }
+    }
+  }
+}

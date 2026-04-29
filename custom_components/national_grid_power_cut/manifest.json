@@ -1,0 +1,14 @@
+{
+  "domain": "national_grid_power_cut",
+  "name": "National Grid Power Cut",
+  "codeowners": [
+    "@djbenson"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/djbenson/ha-nationalgrid-powercut",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/djbenson/ha-nationalgrid-powercut/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}
