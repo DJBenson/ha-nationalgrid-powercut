@@ -34,6 +34,16 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def _normalize_scan_interval(value: Any) -> int:
+    """Normalize a scan interval selector value."""
+    try:
+        minutes = int(float(value))
+    except (TypeError, ValueError):
+        minutes = DEFAULT_SCAN_INTERVAL_MINUTES
+
+    return min(max(minutes, MIN_SCAN_INTERVAL_MINUTES), MAX_SCAN_INTERVAL_MINUTES)
+
+
 def _scan_interval_selector(default: int) -> vol.Schema:
     """Return a config schema for the scan interval slider."""
     return vol.Schema(
@@ -104,9 +114,9 @@ class NationalGridPowerCutConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     title=f"National Grid Power Cut ({postcode})",
                     data={
                         CONF_POSTCODE: postcode,
-                        CONF_SCAN_INTERVAL_MINUTES: user_input[
-                            CONF_SCAN_INTERVAL_MINUTES
-                        ],
+                        CONF_SCAN_INTERVAL_MINUTES: _normalize_scan_interval(
+                            user_input[CONF_SCAN_INTERVAL_MINUTES]
+                        ),
                     },
                 )
 
@@ -142,6 +152,9 @@ class NationalGridPowerCutOptionsFlow(config_entries.OptionsFlow):
     ) -> config_entries.ConfigFlowResult:
         """Manage the options."""
         if user_input is not None:
+            user_input[CONF_SCAN_INTERVAL_MINUTES] = _normalize_scan_interval(
+                user_input[CONF_SCAN_INTERVAL_MINUTES]
+            )
             return self.async_create_entry(title="", data=user_input)
 
         scan_interval_minutes = self._config_entry.options.get(

@@ -13,10 +13,27 @@ from .const import (
     CONF_SCAN_INTERVAL_MINUTES,
     DEFAULT_SCAN_INTERVAL_MINUTES,
     DOMAIN,
+    MAX_SCAN_INTERVAL_MINUTES,
+    MIN_SCAN_INTERVAL_MINUTES,
 )
 from .coordinator import NationalGridPowerCutCoordinator
 
 PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
+
+
+def _get_scan_interval_minutes(entry: ConfigEntry) -> int:
+    """Return a valid scan interval from entry options or data."""
+    value = entry.options.get(
+        CONF_SCAN_INTERVAL_MINUTES,
+        entry.data.get(CONF_SCAN_INTERVAL_MINUTES, DEFAULT_SCAN_INTERVAL_MINUTES),
+    )
+
+    try:
+        minutes = int(float(value))
+    except (TypeError, ValueError):
+        minutes = DEFAULT_SCAN_INTERVAL_MINUTES
+
+    return min(max(minutes, MIN_SCAN_INTERVAL_MINUTES), MAX_SCAN_INTERVAL_MINUTES)
 
 
 async def async_setup_entry(
@@ -25,14 +42,10 @@ async def async_setup_entry(
     """Set up National Grid Power Cut from a config entry."""
     session = async_get_clientsession(hass)
     client = NationalGridPowerCutClient(session, entry.data[CONF_POSTCODE])
-    scan_interval_minutes = entry.options.get(
-        CONF_SCAN_INTERVAL_MINUTES,
-        entry.data.get(CONF_SCAN_INTERVAL_MINUTES, DEFAULT_SCAN_INTERVAL_MINUTES),
-    )
     coordinator = NationalGridPowerCutCoordinator(
         hass,
         client,
-        scan_interval_minutes,
+        _get_scan_interval_minutes(entry),
     )
 
     await coordinator.async_config_entry_first_refresh()
@@ -53,5 +66,4 @@ async def async_unload_entry(
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Reload a config entry."""
-    if await async_unload_entry(hass, entry):
-        await async_setup_entry(hass, entry)
+    await hass.config_entries.async_reload(entry.entry_id)
