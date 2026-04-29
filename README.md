@@ -65,23 +65,61 @@ customer counts, voltage, location, reported/restoration dates, and planned
 outage details are exposed as attributes on the relevant entities rather than as
 standalone sensors.
 
-## Automation ideas
+## Automation example
 
-Use the created entities in automations to notify you about active or upcoming
-power cuts. For example:
+The automation will fire either when there is a live power cut or a planned power cut is detected.
 
-- Trigger when `binary_sensor.power_cut_reported` turns on to warn that a live
-  power cut has been reported for the configured postcode.
-- Trigger from `sensor.planned_outage_start` to send an advance warning before a
-  planned outage starts.
-- Include `sensor.estimated_restoration_time` in notification messages so the
-  alert includes the latest expected restoration time when National Grid
-  provides one.
+```
+alias: National Grid Power Cut Alerts
+description: Notify when a live or planned National Grid power cut is detected.
+mode: single
 
-Example trigger for a planned outage warning:
-
-```yaml
 trigger:
+  - platform: state
+    entity_id: binary_sensor.power_cut_reported
+    from: "off"
+    to: "on"
+    id: live_power_cut
+
   - platform: time
     at: sensor.planned_outage_start
+    id: planned_power_cut
+
+condition: []
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: live_power_cut
+        sequence:
+          - service: notify.mobile_app_your_phone
+            data:
+              title: Power cut reported
+              message: >
+                National Grid has reported a power cut for your postcode.
+                Status: {{ states('sensor.status') }}.
+                Estimated restoration:
+                {% if states('sensor.estimated_restoration_time') not in ['unknown', 'unavailable', 'none'] %}
+                  {{ as_timestamp(states('sensor.estimated_restoration_time')) | timestamp_custom('%H:%M on %d %b') }}
+                {% else %}
+                  Not currently available.
+                {% endif %}
+
+      - conditions:
+          - condition: trigger
+            id: planned_power_cut
+        sequence:
+          - service: notify.mobile_app_your_phone
+            data:
+              title: Planned power cut
+              message: >
+                A planned power cut is scheduled to start now.
+                Status: {{ states('sensor.status') }}.
+                Estimated restoration:
+                {% if states('sensor.estimated_restoration_time') not in ['unknown', 'unavailable', 'none'] %}
+                  {{ as_timestamp(states('sensor.estimated_restoration_time')) | timestamp_custom('%H:%M on %d %b') }}
+                {% else %}
+                  Not currently available.
+                {% endif %}
 ```
