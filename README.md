@@ -43,6 +43,10 @@ for **National Grid Power Cut**.
 The config flow asks for:
 
 - `Postcode`: the UK postcode to search for live outage records.
+- `Refresh interval`: how often to poll the National Grid API, from 5 to 60
+  minutes.
+
+The refresh interval can be changed later from the integration's options.
 
 ## Entities
 
@@ -60,3 +64,24 @@ Fields such as `fault_id`, `category`, `planned`, `resource_status`,
 customer counts, voltage, location, reported/restoration dates, and planned
 outage details are exposed as attributes on the relevant entities rather than as
 standalone sensors.
+
+## Automation ideas
+
+Use the created entities in automations to notify you about active or upcoming
+power cuts. For example:
+
+- Trigger when `binary_sensor.power_cut_reported` turns on to warn that a live
+  power cut has been reported for the configured postcode.
+- Trigger from `sensor.planned_outage_start` to send an advance warning before a
+  planned outage starts.
+- Include `sensor.estimated_restoration_time` in notification messages so the
+  alert includes the latest expected restoration time when National Grid
+  provides one.
+
+Example trigger for a planned outage warning:
+
+```yaml
+trigger:
+  - platform: time
+    at: sensor.planned_outage_start
+```

@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import NationalGridPowerCutClient, NationalGridPowerCutError
-from .const import DEFAULT_SCAN_INTERVAL_MINUTES, DOMAIN
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,13 +18,18 @@ _LOGGER = logging.getLogger(__name__)
 class NationalGridPowerCutCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Coordinate National Grid power cut API updates."""
 
-    def __init__(self, hass: HomeAssistant, client: NationalGridPowerCutClient) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: NationalGridPowerCutClient,
+        scan_interval_minutes: int,
+    ) -> None:
         """Initialize the coordinator."""
         super().__init__(
             hass,
             _LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(minutes=DEFAULT_SCAN_INTERVAL_MINUTES),
+            update_interval=timedelta(minutes=scan_interval_minutes),
         )
         self.client = client
 

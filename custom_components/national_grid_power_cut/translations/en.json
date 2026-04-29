@@ -5,7 +5,11 @@
         "title": "National Grid Power Cut",
         "description": "Enter the postcode to monitor for live National Grid power cut information.",
         "data": {
-          "postcode": "Postcode"
+          "postcode": "Postcode",
+          "scan_interval_minutes": "Refresh interval"
+        },
+        "data_description": {
+          "scan_interval_minutes": "How often to refresh power cut information, in minutes."
         }
       }
     },
@@ -17,6 +21,19 @@
     },
     "abort": {
       "already_configured": "This postcode is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "National Grid Power Cut options",
+        "data": {
+          "scan_interval_minutes": "Refresh interval"
+        },
+        "data_description": {
+          "scan_interval_minutes": "How often to refresh power cut information, in minutes."
+        }
+      }
     }
   },
   "entity": {
