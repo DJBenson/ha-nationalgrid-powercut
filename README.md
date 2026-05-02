@@ -8,6 +8,12 @@ The integration queries the National Grid connected data API:
 https://connecteddata.nationalgrid.co.uk/api/3/action/datastore_search
 ```
 
+## 💖 Support this project
+
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-pink?logo=github)](https://github.com/sponsors/DJBenson)
+[![Ko-fi](https://img.shields.io/badge/Support-Ko--fi-ff5f5f?logo=ko-fi)](https://ko-fi.com/djbenson)
+[![PayPal](https://img.shields.io/badge/Donate-PayPal-blue?logo=paypal)](https://paypal.me/jonathanthomson81)
+
 ## Installation
 
 ### HACS
