@@ -56,15 +56,18 @@ The refresh interval can be changed later from the integration's options.
 
 ## Entities
 
-The integration creates these entities for each configured postcode:
+The integration creates these entities for each configured postcode. Entity IDs
+include the device name, `National Grid Power Cut <postcode>`, so they depend on
+your configured postcode. The IDs below use `<postcode>` as a placeholder;
+check the actual IDs in **Developer tools > States** in Home Assistant.
 
-- `binary_sensor.power_cut_reported`: on when the API returns one or more
+- `binary_sensor.national_grid_power_cut_<postcode>_power_cut_reported`: on when the API returns one or more
   matching outage records. Detailed incident records are exposed as attributes.
-- `sensor.incident_count`: number of matching outage records.
-- `sensor.status`: status for the most relevant/current incident, or
+- `sensor.national_grid_power_cut_<postcode>_incident_count`: number of matching outage records.
+- `sensor.national_grid_power_cut_<postcode>_status`: status for the most relevant/current incident, or
   `No power cut reported`.
-- `sensor.estimated_restoration_time`: timestamp from the incident `etr` field.
-- `sensor.planned_outage_start`: timestamp for a matching planned outage start.
+- `sensor.national_grid_power_cut_<postcode>_estimated_restoration_time`: timestamp from the incident `etr` field.
+- `sensor.national_grid_power_cut_<postcode>_planned_outage_start`: timestamp for a matching planned outage start.
 
 Fields such as `fault_id`, `category`, `planned`, `resource_status`,
 customer counts, voltage, location, reported/restoration dates, and planned
@@ -74,21 +77,24 @@ standalone sensors.
 ## Automation example
 
 The automation will fire either when there is a live power cut or a planned power cut is detected.
+Before using it, replace every placeholder entity ID below with the actual ID
+from your installation, including those inside the message templates. Also
+replace `notify.mobile_app_your_phone` with your notification service.
 
-```
+```yaml
 alias: National Grid Power Cut Alerts
 description: Notify when a live or planned National Grid power cut is detected.
 mode: single
 
 trigger:
   - platform: state
-    entity_id: binary_sensor.power_cut_reported
+    entity_id: binary_sensor.national_grid_power_cut_<postcode>_power_cut_reported
     from: "off"
     to: "on"
     id: live_power_cut
 
   - platform: time
-    at: sensor.planned_outage_start
+    at: sensor.national_grid_power_cut_<postcode>_planned_outage_start
     id: planned_power_cut
 
 condition: []
@@ -104,10 +110,10 @@ action:
               title: Power cut reported
               message: >
                 National Grid has reported a power cut for your postcode.
-                Status: {{ states('sensor.status') }}.
+                Status: {{ states('sensor.national_grid_power_cut_<postcode>_status') }}.
                 Estimated restoration:
-                {% if states('sensor.estimated_restoration_time') not in ['unknown', 'unavailable', 'none'] %}
-                  {{ as_timestamp(states('sensor.estimated_restoration_time')) | timestamp_custom('%H:%M on %d %b') }}
+                {% if states('sensor.national_grid_power_cut_<postcode>_estimated_restoration_time') not in ['unknown', 'unavailable', 'none'] %}
+                  {{ as_timestamp(states('sensor.national_grid_power_cut_<postcode>_estimated_restoration_time')) | timestamp_custom('%H:%M on %d %b') }}
                 {% else %}
                   Not currently available.
                 {% endif %}
@@ -121,10 +127,10 @@ action:
               title: Planned power cut
               message: >
                 A planned power cut is scheduled to start now.
-                Status: {{ states('sensor.status') }}.
+                Status: {{ states('sensor.national_grid_power_cut_<postcode>_status') }}.
                 Estimated restoration:
-                {% if states('sensor.estimated_restoration_time') not in ['unknown', 'unavailable', 'none'] %}
-                  {{ as_timestamp(states('sensor.estimated_restoration_time')) | timestamp_custom('%H:%M on %d %b') }}
+                {% if states('sensor.national_grid_power_cut_<postcode>_estimated_restoration_time') not in ['unknown', 'unavailable', 'none'] %}
+                  {{ as_timestamp(states('sensor.national_grid_power_cut_<postcode>_estimated_restoration_time')) | timestamp_custom('%H:%M on %d %b') }}
                 {% else %}
                   Not currently available.
                 {% endif %}
